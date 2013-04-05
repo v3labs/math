@@ -168,6 +168,9 @@ class BigDecimal
      */
     public function div(BigDecimal $divisor)
     {
+        if ($divisor->signum() === 0) {
+            throw new \InvalidArgumentException('Division by zero');
+        }
         $scale = min($this->scale + $divisor->scale(), self::MAX_SCALE);
 
         return new static(bcdiv($this->value, $divisor->value(), $scale), $scale);

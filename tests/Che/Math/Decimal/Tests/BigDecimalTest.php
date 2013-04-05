@@ -150,6 +150,16 @@ class BigDecimalTest extends TestCase
     }
 
     /**
+     * @test divide with 0 throws exception
+     * @expectedException InvalidArgumentException
+     */
+    public function divZero()
+    {
+        $value1 = new BigDecimal('123.45', 2);
+        $value1->div(new BigDecimal('0.0000'));
+    }
+
+    /**
      * @test powGeneric
      */
     public function powGeneric()
