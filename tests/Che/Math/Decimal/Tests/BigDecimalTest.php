@@ -55,7 +55,7 @@ class BigDecimalTest extends TestCase
     }
 
     /**
-     * @test constructNonNumeric
+     * @test constructNonScalar
      * @dataProvider nonScalar
      *
      * @param mixed $value
@@ -239,6 +239,23 @@ class BigDecimalTest extends TestCase
         $this->assertSame($abs, $decimal->abs()->value());
     }
 
+    /**
+     * @test roundModes
+     * @dataProvider roundValues
+     *
+     * @param int    $mode
+     * @param string $value
+     * @param int    $scale
+     * @param string $result
+     */
+    public function roundModes($mode, $value, $scale, $result)
+    {
+        $decimal = new BigDecimal($value);
+        $rounded = $decimal->round($scale, $mode);
+
+        $this->assertSame($result, $rounded->value(), sprintf('Round "%s" with mode "%d" and scale "%d"', $value, $mode, $scale));
+    }
+
     public function correctFormat()
     {
         return array(
@@ -322,6 +339,99 @@ class BigDecimalTest extends TestCase
             array('123.45', '123.45'),
             array('-123.45', '123.45'),
             array('0.00', '0.00'),
+        );
+    }
+
+    public function roundValues()
+    {
+        return array(
+            array(BigDecimal::ROUND_UP, '5.5', 0, '6'),
+            array(BigDecimal::ROUND_UP, '2.5', 0, '3'),
+            array(BigDecimal::ROUND_UP, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_UP, '1.1', 0, '2'),
+            array(BigDecimal::ROUND_UP, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_UP, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_UP, '-1.1', 0, '-2'),
+            array(BigDecimal::ROUND_UP, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_UP, '-2.5', 0, '-3'),
+            array(BigDecimal::ROUND_UP, '-5.5', 0, '-6'),
+
+            array(BigDecimal::ROUND_DOWN, '5.5', 0, '5'),
+            array(BigDecimal::ROUND_DOWN, '2.5', 0, '2'),
+            array(BigDecimal::ROUND_DOWN, '1.6', 0, '1'),
+            array(BigDecimal::ROUND_DOWN, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_DOWN, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_DOWN, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_DOWN, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_DOWN, '-1.6', 0, '-1'),
+            array(BigDecimal::ROUND_DOWN, '-2.5', 0, '-2'),
+            array(BigDecimal::ROUND_DOWN, '-5.5', 0, '-5'),
+
+            array(BigDecimal::ROUND_CEILING, '5.5', 0, '6'),
+            array(BigDecimal::ROUND_CEILING, '2.5', 0, '3'),
+            array(BigDecimal::ROUND_CEILING, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_CEILING, '1.1', 0, '2'),
+            array(BigDecimal::ROUND_CEILING, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_CEILING, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_CEILING, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_CEILING, '-1.6', 0, '-1'),
+            array(BigDecimal::ROUND_CEILING, '-2.5', 0, '-2'),
+            array(BigDecimal::ROUND_CEILING, '-5.5', 0, '-5'),
+
+            array(BigDecimal::ROUND_FLOOR, '5.5', 0, '5'),
+            array(BigDecimal::ROUND_FLOOR, '2.5', 0, '2'),
+            array(BigDecimal::ROUND_FLOOR, '1.6', 0, '1'),
+            array(BigDecimal::ROUND_FLOOR, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_FLOOR, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_FLOOR, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_FLOOR, '-1.1', 0, '-2'),
+            array(BigDecimal::ROUND_FLOOR, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_FLOOR, '-2.5', 0, '-3'),
+            array(BigDecimal::ROUND_FLOOR, '-5.5', 0, '-6'),
+
+            array(BigDecimal::ROUND_HALF_UP, '5.5', 0, '6'),
+            array(BigDecimal::ROUND_HALF_UP, '2.5', 0, '3'),
+            array(BigDecimal::ROUND_HALF_UP, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_HALF_UP, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_HALF_UP, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_HALF_UP, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_UP, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_UP, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_UP, '-2.5', 0, '-3'),
+            array(BigDecimal::ROUND_HALF_UP, '-5.5', 0, '-6'),
+
+            array(BigDecimal::ROUND_HALF_DOWN, '5.5', 0, '5'),
+            array(BigDecimal::ROUND_HALF_DOWN, '2.5', 0, '2'),
+            array(BigDecimal::ROUND_HALF_DOWN, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_HALF_DOWN, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_HALF_DOWN, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_HALF_DOWN, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_DOWN, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_DOWN, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_DOWN, '-2.5', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_DOWN, '-5.5', 0, '-5'),
+
+            array(BigDecimal::ROUND_HALF_EVEN, '5.5', 0, '6'),
+            array(BigDecimal::ROUND_HALF_EVEN, '2.5', 0, '2'),
+            array(BigDecimal::ROUND_HALF_EVEN, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_HALF_EVEN, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_HALF_EVEN, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_HALF_EVEN, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_EVEN, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_EVEN, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_EVEN, '-2.5', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_EVEN, '-5.5', 0, '-6'),
+
+            array(BigDecimal::ROUND_HALF_ODD, '5.5', 0, '5'),
+            array(BigDecimal::ROUND_HALF_ODD, '2.5', 0, '3'),
+            array(BigDecimal::ROUND_HALF_ODD, '1.6', 0, '2'),
+            array(BigDecimal::ROUND_HALF_ODD, '1.1', 0, '1'),
+            array(BigDecimal::ROUND_HALF_ODD, '1.0', 0, '1'),
+            array(BigDecimal::ROUND_HALF_ODD, '-1.0', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_ODD, '-1.1', 0, '-1'),
+            array(BigDecimal::ROUND_HALF_ODD, '-1.6', 0, '-2'),
+            array(BigDecimal::ROUND_HALF_ODD, '-2.5', 0, '-3'),
+            array(BigDecimal::ROUND_HALF_ODD, '-5.5', 0, '-5'),
         );
     }
 }

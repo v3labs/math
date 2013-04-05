@@ -228,10 +228,71 @@ class BigDecimal
         return $this->signum() < 0 ? $this->negate() : new static($this->value, $this->scale);
     }
 
-    public function setScale($scale = 0, $roundMode = self::ROUND_DOWN)
+    public function round($scale = 0, $roundMode = self::ROUND_DOWN)
     {
-        // TODO: implement
-        throw new \BadMethodCallException('Not implemented');
+        if ($scale >= $this->scale) {
+            return new BigDecimal($this->value, $scale);
+        }
+
+        // Break string to 2 parts. Ex '123.45678', 3: '123.456' and '78'
+        list($newValue, $truncated) = str_split($this->value, strlen($this->value) - ($this->scale - $scale));
+        // Remove trailing dot for integer round
+        if ($scale === 0) {
+            $newValue = substr($newValue, 0, -1);
+        }
+        $truncated = trim($truncated, '0');
+
+        // Check if truncated digits are zeros, than no rounding required
+        if ($truncated === '') {
+            return new BigDecimal($newValue, $scale);
+        }
+
+        // If we should not round but got some truncated digits
+        if ($roundMode === self::ROUND_UNNECESSARY) {
+            throw new \RuntimeException(sprintf('Digits "%s" should not be truncated', $truncated));
+        }
+
+        $rounded = new BigDecimal($newValue, $scale);
+
+        $sign = $this->signum() !== -1;
+        if (self::isRoundAdditionRequired($roundMode, $sign, $newValue, $truncated)) {
+            // If addition required we add (+/-)1E-{scale}
+            $addition = ($sign ? '': '-').'1e-'.$scale;
+            $rounded = $rounded->add(new BigDecimal(number_format($addition, $scale, '.', '')));
+        }
+
+        return $rounded;
+    }
+
+    private static function isRoundAdditionRequired($roundMode, $sign, $value, $truncated)
+    {
+        switch ($roundMode) {
+            case self::ROUND_UP:
+                return true;
+
+            case self::ROUND_DOWN:
+                return false;
+
+            case self::ROUND_CEILING:
+                return $sign;
+
+            case self::ROUND_FLOOR:
+                return !$sign;
+
+            case self::ROUND_HALF_UP:
+                return $truncated === '5' || $truncated[0] >= 5 ;
+
+            case self::ROUND_HALF_DOWN:
+                return !($truncated === '5' || $truncated[0] < 5 );
+
+            case self::ROUND_HALF_EVEN:
+                return !($truncated[0] < 5 || ($truncated === '5' && ($value[strlen($value)-1] % 2 === 0)));
+
+            case self::ROUND_HALF_ODD:
+                return !($truncated[0] < 5 || $truncated === '5' && ($value[strlen($value)-1] % 2 === 1));
+        }
+
+        return false;
     }
     
     /**
