@@ -78,11 +78,21 @@ class BigDecimal
         $this->scale = $scale;
     }
 
+    /**
+     * zero
+     *
+     * @return self
+     */
     public static function zero()
     {
         return new static(0, 0);
     }
 
+    /**
+     * one
+     *
+     * @return self
+     */
     public function one()
     {
         return new static(1, 0);
@@ -196,6 +206,11 @@ class BigDecimal
         return new static(bcpow($this->value, $n, self::MAX_SCALE));
     }
 
+    /**
+     * signum
+     *
+     * @return self
+     */
     public function signum()
     {
         switch ($this->value[0]) {
@@ -208,6 +223,11 @@ class BigDecimal
         }
     }
 
+    /**
+     * negate
+     *
+     * @return self
+     */
     public function negate()
     {
         $value = $this->value;
@@ -223,15 +243,29 @@ class BigDecimal
         return new static($value, $this->scale);
     }
 
+    /**
+     * abs
+     *
+     * @return self
+     */
     public function abs()
     {
         return $this->signum() < 0 ? $this->negate() : new static($this->value, $this->scale);
     }
 
-    public function round($scale = 0, $roundMode = self::ROUND_DOWN)
+    /**
+     * round
+     *
+     * @param int $scale
+     * @param int $roundMode
+     *
+     * @return self
+     * @throws \RuntimeException If round mode is UNNECESSARY and digit truncation is required
+     */
+    public function round($scale = 0, $roundMode = self::ROUND_HALF_UP)
     {
         if ($scale >= $this->scale) {
-            return new BigDecimal($this->value, $scale);
+            return new static($this->value, $scale);
         }
 
         // Break string to 2 parts. Ex '123.45678', 3: '123.456' and '78'
@@ -244,7 +278,7 @@ class BigDecimal
 
         // Check if truncated digits are zeros, than no rounding required
         if ($truncated === '') {
-            return new BigDecimal($newValue, $scale);
+            return new static($newValue, $scale);
         }
 
         // If we should not round but got some truncated digits
@@ -252,13 +286,13 @@ class BigDecimal
             throw new \RuntimeException(sprintf('Digits "%s" should not be truncated', $truncated));
         }
 
-        $rounded = new BigDecimal($newValue, $scale);
+        $rounded = new static($newValue, $scale);
 
         $sign = $this->signum() !== -1;
         if (self::isRoundAdditionRequired($roundMode, $sign, $newValue, $truncated)) {
             // If addition required we add (+/-)1E-{scale}
             $addition = ($sign ? '': '-').'1e-'.$scale;
-            $rounded = $rounded->add(new BigDecimal(number_format($addition, $scale, '.', '')));
+            $rounded = $rounded->add(new static(number_format($addition, $scale, '.', '')));
         }
 
         return $rounded;
