@@ -283,7 +283,7 @@ class BigDecimal
 
         // If we should not round but got some truncated digits
         if ($roundMode === self::ROUND_UNNECESSARY) {
-            throw new \RuntimeException(sprintf('Digits "%s" should not be truncated', $truncated));
+            throw new \RuntimeException(sprintf('Digits "%s" of "%s" should not be truncated with scale "%d"', $truncated, $this->value, $scale));
         }
 
         $rounded = new static($newValue, $scale);
