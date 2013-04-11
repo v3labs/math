@@ -10,14 +10,15 @@
 namespace Che\Math\Decimal;
 
 /**
- * Description of BigDecimal
+ * Immutable Arbitrary Precision decimal number.
+ * Wrapper for BC Math
  *
  * @author Kirill chEbba Chebunin <iam@chebba.org>
  * @license http://opensource.org/licenses/mit-license.php MIT
  */
-class BigDecimal
+class Decimal
 {
-    const MAX_SCALE = 2147483647; // 2^32-1, actual is 100000000578158591, who knows what this number means
+    const MAX_SCALE = 2147483647; // 2^32-1, actual is 100000000578158591, who knows what does this number mean
 
     const ROUND_UP          = 1;
     const ROUND_DOWN        = 2;
@@ -81,7 +82,7 @@ class BigDecimal
     /**
      * zero
      *
-     * @return self
+     * @return Decimal
      */
     public static function zero()
     {
@@ -91,7 +92,7 @@ class BigDecimal
     /**
      * one
      *
-     * @return self
+     * @return Decimal
      */
     public function one()
     {
@@ -120,7 +121,7 @@ class BigDecimal
         return $this->value();
     }
 
-    public function compareTo(BigDecimal $other)
+    public function compareTo(Decimal $other)
     {
         $scale = $this->maxScale($other);
 
@@ -130,11 +131,11 @@ class BigDecimal
     /**
      * add
      *
-     * @param BigDecimal $addend
+     * @param Decimal $addend
      *
-     * @return self
+     * @return Decimal
      */
-    public function add(BigDecimal $addend)
+    public function add(Decimal $addend)
     {
         $scale = $this->maxScale($addend);
 
@@ -144,11 +145,11 @@ class BigDecimal
     /**
      * sub
      *
-     * @param BigDecimal $subtrahend
+     * @param Decimal $subtrahend
      *
-     * @return self
+     * @return Decimal
      */
-    public function sub(BigDecimal $subtrahend)
+    public function sub(Decimal $subtrahend)
     {
         $scale = $this->maxScale($subtrahend);
 
@@ -158,11 +159,11 @@ class BigDecimal
     /**
      * mul
      *
-     * @param BigDecimal $multiplier
+     * @param Decimal $multiplier
      *
-     * @return self
+     * @return Decimal
      */
-    public function mul(BigDecimal $multiplier)
+    public function mul(Decimal $multiplier)
     {
         $scale = min($this->scale + $multiplier->scale(), self::MAX_SCALE);
 
@@ -172,11 +173,11 @@ class BigDecimal
     /**
      * div
      *
-     * @param BigDecimal $divisor
+     * @param Decimal $divisor
      *
-     * @return self
+     * @return Decimal
      */
-    public function div(BigDecimal $divisor)
+    public function div(Decimal $divisor)
     {
         if ($divisor->signum() === 0) {
             throw new \InvalidArgumentException('Division by zero');
@@ -191,7 +192,7 @@ class BigDecimal
      *
      * @param $n
      *
-     * @return self
+     * @return Decimal
      */
     public function pow($n)
     {
@@ -209,7 +210,7 @@ class BigDecimal
     /**
      * signum
      *
-     * @return self
+     * @return Decimal
      */
     public function signum()
     {
@@ -226,7 +227,7 @@ class BigDecimal
     /**
      * negate
      *
-     * @return self
+     * @return Decimal
      */
     public function negate()
     {
@@ -246,7 +247,7 @@ class BigDecimal
     /**
      * abs
      *
-     * @return self
+     * @return Decimal
      */
     public function abs()
     {
@@ -259,7 +260,7 @@ class BigDecimal
      * @param int $scale
      * @param int $roundMode
      *
-     * @return self
+     * @return Decimal
      * @throws \RuntimeException If round mode is UNNECESSARY and digit truncation is required
      */
     public function round($scale = 0, $roundMode = self::ROUND_HALF_UP)
@@ -332,11 +333,11 @@ class BigDecimal
     /**
      * maxScale
      *
-     * @param BigDecimal $other
+     * @param Decimal $other
      *
      * @return mixed
      */
-    private function maxScale(BigDecimal $other)
+    private function maxScale(Decimal $other)
     {
         return max($this->scale, $other->scale());
     }

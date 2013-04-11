@@ -9,16 +9,16 @@
 
 namespace Che\Math\Decimal\Tests;
 
-use Che\Math\Decimal\BigDecimal;
+use Che\Math\Decimal\Decimal;
 use PHPUnit_Framework_TestCase as TestCase;
 
 /**
- * Description of BigDecimalTest
+ * Test for Decimal
  *
  * @author Kirill chEbba Chebunin <iam@chebba.org>
  * @license http://opensource.org/licenses/mit-license.php MIT
  */
-class BigDecimalTest extends TestCase
+class DecimalTest extends TestCase
 {
     /**
      * @test constructWithCorrectFormat
@@ -31,7 +31,7 @@ class BigDecimalTest extends TestCase
      */
     public function constructWithCorrectFormat($string, $scale, $value, $case)
     {
-        $decimal = new BigDecimal($string, $scale);
+        $decimal = new Decimal($string, $scale);
         $this->assertSame($value, $decimal->value(), $case);
     }
 
@@ -45,7 +45,7 @@ class BigDecimalTest extends TestCase
     public function constructWithWrongFormat($string, $case)
     {
         try {
-            new BigDecimal($string);
+            new Decimal($string);
         } catch (\InvalidArgumentException $e) {
             // Correct
             return;
@@ -64,7 +64,7 @@ class BigDecimalTest extends TestCase
     public function constructNonScalar($value, $case)
     {
         try {
-            new BigDecimal($value);
+            new Decimal($value);
         } catch (\InvalidArgumentException $e) {
             // Correct
             return;
@@ -83,7 +83,7 @@ class BigDecimalTest extends TestCase
      */
     public function constructDetectScale($string, $expectedScale, $case)
     {
-        $decimal = new BigDecimal($string);
+        $decimal = new Decimal($string);
         $this->assertSame($expectedScale, $decimal->scale(), $case);
     }
 
@@ -96,7 +96,7 @@ class BigDecimalTest extends TestCase
      */
     public function precisionCalculation($value, $precision)
     {
-        $decimal = new BigDecimal($value);
+        $decimal = new Decimal($value);
 
         $this->assertSame($precision, $decimal->precision());
     }
@@ -106,8 +106,8 @@ class BigDecimalTest extends TestCase
      */
     public function addGeneric()
     {
-        $value1 = new BigDecimal('192341864273423843765928364.12345', 5);
-        $value2 = new BigDecimal('1476127319823712827462.6789', 4);
+        $value1 = new Decimal('192341864273423843765928364.12345', 5);
+        $value2 = new Decimal('1476127319823712827462.6789', 4);
         $sum = $value1->add($value2);
 
         $this->assertSame('192343340400743667478755826.80235', $sum->value());
@@ -118,8 +118,8 @@ class BigDecimalTest extends TestCase
      */
     public function subGeneric()
     {
-        $value1 = new BigDecimal('192341864273423843765928364.12345', 5);
-        $value2 = new BigDecimal('1476127319823712827462.6789', 4);
+        $value1 = new Decimal('192341864273423843765928364.12345', 5);
+        $value2 = new Decimal('1476127319823712827462.6789', 4);
         $result = $value1->sub($value2);
 
         $this->assertSame('192340388146104020053100901.44455', $result->value());
@@ -130,8 +130,8 @@ class BigDecimalTest extends TestCase
      */
     public function mulGeneric()
     {
-        $value1 = new BigDecimal('192341864273423843765928364.12345', 5);
-        $value2 = new BigDecimal('1476127319823712827462.6789', 4);
+        $value1 = new Decimal('192341864273423843765928364.12345', 5);
+        $value2 = new Decimal('1476127319823712827462.6789', 4);
         $result = $value1->mul($value2);
 
         $this->assertSame('283921080599825482308979477183220255889553969484.587310205', $result->value());
@@ -142,8 +142,8 @@ class BigDecimalTest extends TestCase
      */
     public function divGeneric()
     {
-        $value1 = new BigDecimal('192341864273423843765928364.12345', 5);
-        $value2 = new BigDecimal('1476127319823712827462.6789', 4);
+        $value1 = new Decimal('192341864273423843765928364.12345', 5);
+        $value2 = new Decimal('1476127319823712827462.6789', 4);
         $result = $value1->div($value2);
 
         $this->assertSame('130301.676346180', $result->value());
@@ -155,8 +155,8 @@ class BigDecimalTest extends TestCase
      */
     public function divZero()
     {
-        $value1 = new BigDecimal('123.45', 2);
-        $value1->div(new BigDecimal('0.0000'));
+        $value1 = new Decimal('123.45', 2);
+        $value1->div(new Decimal('0.0000'));
     }
 
     /**
@@ -164,7 +164,7 @@ class BigDecimalTest extends TestCase
      */
     public function powGeneric()
     {
-        $value1 = new BigDecimal('192341.12345', 5);
+        $value1 = new Decimal('192341.12345', 5);
         $result = $value1->pow(7);
 
         $this->assertSame('9738790844484549401155595521762619025.20542465353794878176298358858515625', $result->value());
@@ -175,7 +175,7 @@ class BigDecimalTest extends TestCase
      */
     public function powZero()
     {
-        $value1 = new BigDecimal('192341.12345', 5);
+        $value1 = new Decimal('192341.12345', 5);
         $result = $value1->pow(0);
 
         $this->assertSame('1', $result->value());
@@ -187,7 +187,7 @@ class BigDecimalTest extends TestCase
     public function powNegative()
     {
         try {
-            $value1 = new BigDecimal('192341.12345', 5);
+            $value1 = new Decimal('192341.12345', 5);
             $result = $value1->pow(-3);
         } catch (\InvalidArgumentException $e) {
             // pass
@@ -206,7 +206,7 @@ class BigDecimalTest extends TestCase
      */
     public function signumCorrectSign($string, $sign)
     {
-        $decimal = new BigDecimal($string);
+        $decimal = new Decimal($string);
 
         $this->assertSame($sign, $decimal->signum());
     }
@@ -220,7 +220,7 @@ class BigDecimalTest extends TestCase
      */
     public function negateCorrectConversion($value, $negative)
     {
-        $decimal = new BigDecimal($value);
+        $decimal = new Decimal($value);
 
         $this->assertSame($negative, $decimal->negate()->value());
     }
@@ -234,7 +234,7 @@ class BigDecimalTest extends TestCase
      */
     public function absCorrectConversion($value, $abs)
     {
-        $decimal = new BigDecimal($value);
+        $decimal = new Decimal($value);
 
         $this->assertSame($abs, $decimal->abs()->value());
     }
@@ -250,7 +250,7 @@ class BigDecimalTest extends TestCase
      */
     public function roundModes($mode, $value, $scale, $result)
     {
-        $decimal = new BigDecimal($value);
+        $decimal = new Decimal($value);
         $rounded = $decimal->round($scale, $mode);
 
         $this->assertSame($result, $rounded->value(), sprintf('Round "%s" with mode "%d" and scale "%d"', $value, $mode, $scale));
@@ -345,93 +345,93 @@ class BigDecimalTest extends TestCase
     public function roundValues()
     {
         return array(
-            array(BigDecimal::ROUND_UP, '5.5', 0, '6'),
-            array(BigDecimal::ROUND_UP, '2.5', 0, '3'),
-            array(BigDecimal::ROUND_UP, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_UP, '1.1', 0, '2'),
-            array(BigDecimal::ROUND_UP, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_UP, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_UP, '-1.1', 0, '-2'),
-            array(BigDecimal::ROUND_UP, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_UP, '-2.5', 0, '-3'),
-            array(BigDecimal::ROUND_UP, '-5.5', 0, '-6'),
+            array(Decimal::ROUND_UP, '5.5', 0, '6'),
+            array(Decimal::ROUND_UP, '2.5', 0, '3'),
+            array(Decimal::ROUND_UP, '1.6', 0, '2'),
+            array(Decimal::ROUND_UP, '1.1', 0, '2'),
+            array(Decimal::ROUND_UP, '1.0', 0, '1'),
+            array(Decimal::ROUND_UP, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_UP, '-1.1', 0, '-2'),
+            array(Decimal::ROUND_UP, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_UP, '-2.5', 0, '-3'),
+            array(Decimal::ROUND_UP, '-5.5', 0, '-6'),
 
-            array(BigDecimal::ROUND_DOWN, '5.5', 0, '5'),
-            array(BigDecimal::ROUND_DOWN, '2.5', 0, '2'),
-            array(BigDecimal::ROUND_DOWN, '1.6', 0, '1'),
-            array(BigDecimal::ROUND_DOWN, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_DOWN, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_DOWN, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_DOWN, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_DOWN, '-1.6', 0, '-1'),
-            array(BigDecimal::ROUND_DOWN, '-2.5', 0, '-2'),
-            array(BigDecimal::ROUND_DOWN, '-5.5', 0, '-5'),
+            array(Decimal::ROUND_DOWN, '5.5', 0, '5'),
+            array(Decimal::ROUND_DOWN, '2.5', 0, '2'),
+            array(Decimal::ROUND_DOWN, '1.6', 0, '1'),
+            array(Decimal::ROUND_DOWN, '1.1', 0, '1'),
+            array(Decimal::ROUND_DOWN, '1.0', 0, '1'),
+            array(Decimal::ROUND_DOWN, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_DOWN, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_DOWN, '-1.6', 0, '-1'),
+            array(Decimal::ROUND_DOWN, '-2.5', 0, '-2'),
+            array(Decimal::ROUND_DOWN, '-5.5', 0, '-5'),
 
-            array(BigDecimal::ROUND_CEILING, '5.5', 0, '6'),
-            array(BigDecimal::ROUND_CEILING, '2.5', 0, '3'),
-            array(BigDecimal::ROUND_CEILING, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_CEILING, '1.1', 0, '2'),
-            array(BigDecimal::ROUND_CEILING, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_CEILING, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_CEILING, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_CEILING, '-1.6', 0, '-1'),
-            array(BigDecimal::ROUND_CEILING, '-2.5', 0, '-2'),
-            array(BigDecimal::ROUND_CEILING, '-5.5', 0, '-5'),
+            array(Decimal::ROUND_CEILING, '5.5', 0, '6'),
+            array(Decimal::ROUND_CEILING, '2.5', 0, '3'),
+            array(Decimal::ROUND_CEILING, '1.6', 0, '2'),
+            array(Decimal::ROUND_CEILING, '1.1', 0, '2'),
+            array(Decimal::ROUND_CEILING, '1.0', 0, '1'),
+            array(Decimal::ROUND_CEILING, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_CEILING, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_CEILING, '-1.6', 0, '-1'),
+            array(Decimal::ROUND_CEILING, '-2.5', 0, '-2'),
+            array(Decimal::ROUND_CEILING, '-5.5', 0, '-5'),
 
-            array(BigDecimal::ROUND_FLOOR, '5.5', 0, '5'),
-            array(BigDecimal::ROUND_FLOOR, '2.5', 0, '2'),
-            array(BigDecimal::ROUND_FLOOR, '1.6', 0, '1'),
-            array(BigDecimal::ROUND_FLOOR, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_FLOOR, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_FLOOR, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_FLOOR, '-1.1', 0, '-2'),
-            array(BigDecimal::ROUND_FLOOR, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_FLOOR, '-2.5', 0, '-3'),
-            array(BigDecimal::ROUND_FLOOR, '-5.5', 0, '-6'),
+            array(Decimal::ROUND_FLOOR, '5.5', 0, '5'),
+            array(Decimal::ROUND_FLOOR, '2.5', 0, '2'),
+            array(Decimal::ROUND_FLOOR, '1.6', 0, '1'),
+            array(Decimal::ROUND_FLOOR, '1.1', 0, '1'),
+            array(Decimal::ROUND_FLOOR, '1.0', 0, '1'),
+            array(Decimal::ROUND_FLOOR, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_FLOOR, '-1.1', 0, '-2'),
+            array(Decimal::ROUND_FLOOR, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_FLOOR, '-2.5', 0, '-3'),
+            array(Decimal::ROUND_FLOOR, '-5.5', 0, '-6'),
 
-            array(BigDecimal::ROUND_HALF_UP, '5.5', 0, '6'),
-            array(BigDecimal::ROUND_HALF_UP, '2.5', 0, '3'),
-            array(BigDecimal::ROUND_HALF_UP, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_HALF_UP, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_HALF_UP, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_HALF_UP, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_UP, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_UP, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_UP, '-2.5', 0, '-3'),
-            array(BigDecimal::ROUND_HALF_UP, '-5.5', 0, '-6'),
+            array(Decimal::ROUND_HALF_UP, '5.5', 0, '6'),
+            array(Decimal::ROUND_HALF_UP, '2.5', 0, '3'),
+            array(Decimal::ROUND_HALF_UP, '1.6', 0, '2'),
+            array(Decimal::ROUND_HALF_UP, '1.1', 0, '1'),
+            array(Decimal::ROUND_HALF_UP, '1.0', 0, '1'),
+            array(Decimal::ROUND_HALF_UP, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_HALF_UP, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_HALF_UP, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_HALF_UP, '-2.5', 0, '-3'),
+            array(Decimal::ROUND_HALF_UP, '-5.5', 0, '-6'),
 
-            array(BigDecimal::ROUND_HALF_DOWN, '5.5', 0, '5'),
-            array(BigDecimal::ROUND_HALF_DOWN, '2.5', 0, '2'),
-            array(BigDecimal::ROUND_HALF_DOWN, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_HALF_DOWN, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_HALF_DOWN, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_HALF_DOWN, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_DOWN, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_DOWN, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_DOWN, '-2.5', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_DOWN, '-5.5', 0, '-5'),
+            array(Decimal::ROUND_HALF_DOWN, '5.5', 0, '5'),
+            array(Decimal::ROUND_HALF_DOWN, '2.5', 0, '2'),
+            array(Decimal::ROUND_HALF_DOWN, '1.6', 0, '2'),
+            array(Decimal::ROUND_HALF_DOWN, '1.1', 0, '1'),
+            array(Decimal::ROUND_HALF_DOWN, '1.0', 0, '1'),
+            array(Decimal::ROUND_HALF_DOWN, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_HALF_DOWN, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_HALF_DOWN, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_HALF_DOWN, '-2.5', 0, '-2'),
+            array(Decimal::ROUND_HALF_DOWN, '-5.5', 0, '-5'),
 
-            array(BigDecimal::ROUND_HALF_EVEN, '5.5', 0, '6'),
-            array(BigDecimal::ROUND_HALF_EVEN, '2.5', 0, '2'),
-            array(BigDecimal::ROUND_HALF_EVEN, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_HALF_EVEN, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_HALF_EVEN, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_HALF_EVEN, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_EVEN, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_EVEN, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_EVEN, '-2.5', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_EVEN, '-5.5', 0, '-6'),
+            array(Decimal::ROUND_HALF_EVEN, '5.5', 0, '6'),
+            array(Decimal::ROUND_HALF_EVEN, '2.5', 0, '2'),
+            array(Decimal::ROUND_HALF_EVEN, '1.6', 0, '2'),
+            array(Decimal::ROUND_HALF_EVEN, '1.1', 0, '1'),
+            array(Decimal::ROUND_HALF_EVEN, '1.0', 0, '1'),
+            array(Decimal::ROUND_HALF_EVEN, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_HALF_EVEN, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_HALF_EVEN, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_HALF_EVEN, '-2.5', 0, '-2'),
+            array(Decimal::ROUND_HALF_EVEN, '-5.5', 0, '-6'),
 
-            array(BigDecimal::ROUND_HALF_ODD, '5.5', 0, '5'),
-            array(BigDecimal::ROUND_HALF_ODD, '2.5', 0, '3'),
-            array(BigDecimal::ROUND_HALF_ODD, '1.6', 0, '2'),
-            array(BigDecimal::ROUND_HALF_ODD, '1.1', 0, '1'),
-            array(BigDecimal::ROUND_HALF_ODD, '1.0', 0, '1'),
-            array(BigDecimal::ROUND_HALF_ODD, '-1.0', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_ODD, '-1.1', 0, '-1'),
-            array(BigDecimal::ROUND_HALF_ODD, '-1.6', 0, '-2'),
-            array(BigDecimal::ROUND_HALF_ODD, '-2.5', 0, '-3'),
-            array(BigDecimal::ROUND_HALF_ODD, '-5.5', 0, '-5'),
+            array(Decimal::ROUND_HALF_ODD, '5.5', 0, '5'),
+            array(Decimal::ROUND_HALF_ODD, '2.5', 0, '3'),
+            array(Decimal::ROUND_HALF_ODD, '1.6', 0, '2'),
+            array(Decimal::ROUND_HALF_ODD, '1.1', 0, '1'),
+            array(Decimal::ROUND_HALF_ODD, '1.0', 0, '1'),
+            array(Decimal::ROUND_HALF_ODD, '-1.0', 0, '-1'),
+            array(Decimal::ROUND_HALF_ODD, '-1.1', 0, '-1'),
+            array(Decimal::ROUND_HALF_ODD, '-1.6', 0, '-2'),
+            array(Decimal::ROUND_HALF_ODD, '-2.5', 0, '-3'),
+            array(Decimal::ROUND_HALF_ODD, '-5.5', 0, '-5'),
         );
     }
 }
