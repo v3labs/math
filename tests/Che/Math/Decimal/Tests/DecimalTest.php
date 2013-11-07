@@ -321,6 +321,8 @@ class DecimalTest extends TestCase
             array('123.4500', 1),
             array('-123.4500', -1),
             array('0.0000', 0),
+            array('0.91', 1),
+            array('-0.91', -1)
         );
     }
 
@@ -329,7 +331,9 @@ class DecimalTest extends TestCase
         return array(
             array('-123.45', '123.45'),
             array('123.45', '-123.45'),
-            array('0.00', '0.00')
+            array('0.00', '0.00'),
+            array('0.91', '-0.91'),
+            array('-0.91', '0.91')
         );
     }
 
@@ -339,6 +343,8 @@ class DecimalTest extends TestCase
             array('123.45', '123.45'),
             array('-123.45', '123.45'),
             array('0.00', '0.00'),
+            array('0.91', '0.91'),
+            array('-0.91', '0.91')
         );
     }
 

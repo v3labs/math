@@ -113,7 +113,7 @@ class Decimal
     {
         $parts = explode('.', $this->value);
 
-        return strlen(ltrim($parts[0], '-+'));
+        return strlen(ltrim($parts[0], '-'));
     }
 
     public function __toString()
@@ -214,14 +214,16 @@ class Decimal
      */
     public function signum()
     {
-        switch ($this->value[0]) {
-            case '-':
-                return -1;
-            case '0':
-                return 0;
-            default:
-                return 1;
+        // TODO: may be just use bccomp with 0, need to test what is faster
+        if ($this->value[0] === '-') {
+            return -1;
+        } elseif ($this->value[0] !== '0') {
+            return 1;
+        } elseif (trim($this->value, '0.') === '') {
+            return 0;
         }
+
+        return 1;
     }
 
     /**
@@ -234,7 +236,7 @@ class Decimal
         $value = $this->value;
         switch ($this->signum()) {
             case -1:
-                $value[0] = '+';
+                $value = substr($value, 1);
                 break;
             case 1:
                 $value = '-'.$value;
