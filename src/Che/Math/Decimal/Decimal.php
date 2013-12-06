@@ -277,7 +277,8 @@ class Decimal
         if ($scale === 0) {
             $newValue = substr($newValue, 0, -1);
         }
-        $truncated = trim($truncated, '0');
+        // remove extra zeros
+        $truncated = rtrim($truncated, '0');
 
         // Check if truncated digits are zeros, than no rounding required
         if ($truncated === '') {
