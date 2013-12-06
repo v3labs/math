@@ -406,6 +406,10 @@ class DecimalTest extends TestCase
             array(Decimal::ROUND_HALF_UP, '-2.5', 0, '-3'),
             array(Decimal::ROUND_HALF_UP, '-5.5', 0, '-6'),
 
+            // Bug with zero at first truncated position.
+            // It was been rounded to 6, because zero was ignored and the next digit was used
+            array(Decimal::ROUND_HALF_UP, '5.06', 0, '5'),
+
             array(Decimal::ROUND_HALF_DOWN, '5.5', 0, '5'),
             array(Decimal::ROUND_HALF_DOWN, '2.5', 0, '2'),
             array(Decimal::ROUND_HALF_DOWN, '1.6', 0, '2'),
