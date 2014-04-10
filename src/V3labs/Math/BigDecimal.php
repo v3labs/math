@@ -2,23 +2,24 @@
 /*
  * Copyright (c)
  * Kirill chEbba Chebunin <iam@chebba.org>
+ * Vladislav Veselinov <vladislav@v3labs.com>
  *
  * This source file is subject to the MIT license that is bundled
  * with this package in the file LICENSE.
  */
 
-namespace Che\Math\Decimal;
+namespace V3labs\Math;
 
 /**
  * Immutable Arbitrary Precision decimal number.
  * Wrapper for BC Math
  *
  * @author Kirill chEbba Chebunin <iam@chebba.org>
- * @license http://opensource.org/licenses/mit-license.php MIT
+ * @author Vladislav Veselinov <vladislav@v3labs.com>
  */
-class Decimal
+class BigDecimal
 {
-    const MAX_SCALE = 2147483647; // 2^32-1, actual is 100000000578158591, who knows what does this number mean
+    const MAX_SCALE = 2147483647;
 
     const ROUND_UP          = 1;
     const ROUND_DOWN        = 2;
@@ -54,9 +55,9 @@ class Decimal
         }
 
         $sign = $matches[1] === '-' ? '-' : '';
-        $integer = ltrim($matches[2], '0') ?: '0'; // Remove leading zeros, empty treat as 0
+        $integer = ltrim($matches[2], '0') ?: '0';
         $fraction = isset($matches[4]) ? $matches[4] : '';
-        // Check for zero
+
         if ($integer === '0' && trim($fraction, '0') === '') {
             $sign = '';
         }
@@ -72,17 +73,14 @@ class Decimal
             }
         }
 
-        $this->value = $sign.$integer;
-        if ($scale) {
-            $this->value .= '.'.$fraction;
-        }
+        $this->value = $sign . $integer . ($scale ? ('.' . $fraction) : '');
         $this->scale = $scale;
     }
 
     /**
      * zero
      *
-     * @return Decimal
+     * @return BigDecimal
      */
     public static function zero()
     {
@@ -92,7 +90,7 @@ class Decimal
     /**
      * one
      *
-     * @return Decimal
+     * @return BigDecimal
      */
     public function one()
     {
@@ -121,49 +119,34 @@ class Decimal
         return $this->value();
     }
 
-    public function compareTo(Decimal $other)
-    {
-        $scale = $this->maxScale($other);
-
-        return bccomp($this->value, $other->value(), $scale);
-    }
-
     /**
-     * add
+     * @param BigDecimal $addend
      *
-     * @param Decimal $addend
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
-    public function add(Decimal $addend)
+    public function add(BigDecimal $addend)
     {
-        $scale = $this->maxScale($addend);
-
+        $scale = max($this->scale(), $addend->scale());
         return new static(bcadd($this->value, $addend->value(), $scale), $scale);
     }
 
     /**
-     * sub
+     * @param BigDecimal $subtrahend
      *
-     * @param Decimal $subtrahend
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
-    public function sub(Decimal $subtrahend)
+    public function subtract(BigDecimal $subtrahend)
     {
-        $scale = $this->maxScale($subtrahend);
-
+        $scale = max($this->scale(), $subtrahend->scale());
         return new static(bcsub($this->value, $subtrahend->value(), $scale), $scale);
     }
 
     /**
-     * mul
+     * @param BigDecimal $multiplier
      *
-     * @param Decimal $multiplier
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
-    public function mul(Decimal $multiplier)
+    public function multiply(BigDecimal $multiplier)
     {
         $scale = min($this->scale + $multiplier->scale(), self::MAX_SCALE);
 
@@ -171,13 +154,12 @@ class Decimal
     }
 
     /**
-     * div
+     * @param BigDecimal $divisor
      *
-     * @param Decimal $divisor
-     *
-     * @return Decimal
+     * @return BigDecimal
+     * @throws \InvalidArgumentException
      */
-    public function div(Decimal $divisor)
+    public function divide(BigDecimal $divisor)
     {
         if ($divisor->signum() === 0) {
             throw new \InvalidArgumentException('Division by zero');
@@ -188,11 +170,10 @@ class Decimal
     }
 
     /**
-     * pow
-     *
      * @param $n
      *
-     * @return Decimal
+     * @return BigDecimal
+     * @throws \InvalidArgumentException
      */
     public function pow($n)
     {
@@ -208,28 +189,15 @@ class Decimal
     }
 
     /**
-     * signum
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
     public function signum()
     {
-        // TODO: may be just use bccomp with 0, need to test what is faster
-        if ($this->value[0] === '-') {
-            return -1;
-        } elseif ($this->value[0] !== '0') {
-            return 1;
-        } elseif (trim($this->value, '0.') === '') {
-            return 0;
-        }
-
-        return 1;
+        return $this->compareTo(self::zero());
     }
 
     /**
-     * negate
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
     public function negate()
     {
@@ -239,7 +207,7 @@ class Decimal
                 $value = substr($value, 1);
                 break;
             case 1:
-                $value = '-'.$value;
+                $value = '-'. $value;
                 break;
         }
 
@@ -247,9 +215,7 @@ class Decimal
     }
 
     /**
-     * abs
-     *
-     * @return Decimal
+     * @return BigDecimal
      */
     public function abs()
     {
@@ -257,12 +223,10 @@ class Decimal
     }
 
     /**
-     * round
-     *
      * @param int $scale
      * @param int $roundMode
      *
-     * @return Decimal
+     * @return BigDecimal
      * @throws \RuntimeException If round mode is UNNECESSARY and digit truncation is required
      */
     public function round($scale = 0, $roundMode = self::ROUND_HALF_UP)
@@ -332,16 +296,59 @@ class Decimal
 
         return false;
     }
-    
+
     /**
-     * maxScale
-     *
-     * @param Decimal $other
-     *
-     * @return mixed
+     * @param BigDecimal $number
+     * @return int
      */
-    private function maxScale(Decimal $other)
+    public function compareTo(BigDecimal $number)
     {
-        return max($this->scale, $other->scale());
+        $scale = max($this->scale(), $number->scale());
+        return bccomp($this->value, $number->value(), $scale);
+    }
+
+    /**
+     * @param BigDecimal $number
+     * @return bool
+     */
+    public function isEqualTo(BigDecimal $number)
+    {
+        return $this->compareTo($number) == 0;
+    }
+
+    /**
+     * @param BigDecimal $number
+     * @return bool
+     */
+    public function isGreaterThan(BigDecimal $number)
+    {
+        return $this->compareTo($number) == 1;
+    }
+
+    /**
+     * @param BigDecimal $number
+     * @return bool
+     */
+    public function isGreaterThanOrEqualTo(BigDecimal $number)
+    {
+        return $this->compareTo($number) >= 0;
+    }
+
+    /**
+     * @param BigDecimal $number
+     * @return bool
+     */
+    public function isLessThan(BigDecimal $number)
+    {
+        return $this->compareTo($number) == -1;
+    }
+
+    /**
+     * @param BigDecimal $number
+     * @return bool
+     */
+    public function isLessThanOrEqualTo(BigDecimal $number)
+    {
+        return $this->compareTo($number) <= 0;
     }
 }

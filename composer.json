@@ -1,8 +1,8 @@
 {
-    "name": "che/decimal",
-    "description": "Immutable arbitrary-precision decimal implementation for php 5.3+",
+    "name": "v3labs/math",
+    "description": "Math library for php 5.4+",
     "keywords": ["decimal", "bcmath", "bigdecimal", "big", "number", "money"],
-    "homepage": "http://github.com/chEbba/Decimal",
+    "homepage": "http://github.com/v3labs/math",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,19 +10,24 @@
             "name": "Kirill chEbba Chebunin",
             "email": "iam@chebba.org",
             "homepage": "http://github.com/chEbba"
+        },
+        {
+            "name": "Vladislav Veselinov",
+            "email": "vladislav@v3labs.com",
+            "homepage": "http://github.com/v3labs"
         }
     ],
 
     "autoload": {
-        "psr-0": { "Che\\Math\\Decimal": "src/" }
+        "psr-0": { "V3labs\\Math": "src/" }
     },
 
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.4.0",
         "ext-bcmath": "*"
     },
 
     "require-dev": {
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "~4.0"
     }
 }

@@ -1,2 +1,7 @@
-vendor
-composer.lock
+/vendor/
+/composer.phar
+/composer.lock
+/.idea/
+/nbproject/
+
+*.DS_Store
