@@ -254,6 +254,26 @@ class BigDecimalTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($result, $rounded->value(), sprintf('Round "%s" with mode "%d" and scale "%d"', $value, $mode, $scale));
     }
 
+    /**
+     * @test scaleChange
+     * @dataProvider scaleChange
+     */
+    public function scaleChangeTest($initial, $newScale, $expected)
+    {
+        $this->assertEquals((new BigDecimal($initial))->setScale($newScale)->value(), $expected);
+    }
+
+    public function scaleChange()
+    {
+        return [
+            ['100.00', 0, '100'],
+            ['100.12', 3, '100.120'],
+            ['100', 2, '100.00'],
+            ['50.123', 2, '50.12'],
+            ['-50.541', 1, '-50.5']
+        ];
+    }
+
     public function correctFormat()
     {
         return [

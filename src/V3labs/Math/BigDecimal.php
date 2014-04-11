@@ -102,9 +102,21 @@ class BigDecimal
         return $this->value;
     }
 
+    /**
+     * @return int
+     */
     public function scale()
     {
         return $this->scale;
+    }
+
+    /**
+     * @param $scale
+     * @return BigDecimal
+     */
+    public function setScale($scale)
+    {
+        return new static($this->value(), $scale);
     }
 
     public function precision()
