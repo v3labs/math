@@ -288,7 +288,15 @@ class BigDecimalTest extends \PHPUnit_Framework_TestCase
             ['123.10', 0, '123', 'Null fraction'],
             ['0.00', 2, '0.00', 'Zero'],
             ['0', 2, '0.00', 'Zero padding'],
-            ['-0.00', 2, '0.00', 'Negative zero']
+            ['-0.00', 2, '0.00', 'Negative zero'],
+            ['1E10', null, '10000000000', 'Scientific notation without sign in exponent'],
+            ['1E+9', null, '1000000000', 'Scientific notation with sign in exponent'],
+            ['1E-10', null, '0.0000000001', 'Scientific notation with negative exponent'],
+            ['1.1E2', null, '110', 'Scientific notation'],
+            ['0.012E+9', 2, '12000000.00', 'Scientific notation'],
+            ['0.0123E+9', null, '12300000', 'Scientific notation'],
+            ['10.0530E+1', null, '100.530', 'Scientific notation'],
+            ['10.1530E+1', 1, '101.5', 'Scientific notation']
         ];
     }
 
