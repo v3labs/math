@@ -31,7 +31,7 @@ class BigDecimal
     const ROUND_HALF_ODD    = 8;
     const ROUND_UNNECESSARY = 9;
 
-    const STRING_FORMAT_REGEX  = '/^([-+])?([0-9]+)(.([0-9]+))?$/';
+    const STRING_FORMAT_REGEX  = '/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/';
 
     private $value;
     private $scale;
@@ -50,6 +50,7 @@ class BigDecimal
         }
 
         $value = (string) $value;
+
         if (!preg_match(self::STRING_FORMAT_REGEX, $value, $matches)) {
             throw new \InvalidArgumentException(sprintf('Wrong value "%s" format: expected "%s"', $value, self::STRING_FORMAT_REGEX));
         }
@@ -57,10 +58,15 @@ class BigDecimal
         $sign = $matches[1] === '-' ? '-' : '';
         $integer = ltrim($matches[2], '0') ?: '0';
         $fraction = isset($matches[4]) ? $matches[4] : '';
+        $exponent = - strlen($fraction) + (isset($matches[6]) ? (int)$matches[6] : 0);
 
-        if ($integer === '0' && trim($fraction, '0') === '') {
-            $sign = '';
-        }
+        $significand = $sign . $integer . $fraction;
+
+        $exponentScale = abs(min($exponent, 0));
+
+        $newValue = bcmul($significand, bcpow(10, $exponent, $exponentScale), $exponentScale);
+
+        list($integer, $fraction) = (array_pad(explode('.', $newValue, 2), 2, ''));
 
         if ($scale === null) {
             $scale = strlen($fraction);
@@ -73,7 +79,7 @@ class BigDecimal
             }
         }
 
-        $this->value = $sign . $integer . ($scale ? ('.' . $fraction) : '');
+        $this->value = $integer . ($scale ? ('.' . $fraction) : '');
         $this->scale = $scale;
     }
 
