@@ -369,4 +369,20 @@ class BigDecimal
     {
         return $this->compareTo($number) <= 0;
     }
+
+    /**
+     * @return bool
+     */
+    public function isNegative()
+    {
+        return $this->isLessThan(static::zero());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPositive()
+    {
+        return $this->isGreaterThan(static::zero());
+    }
 }
