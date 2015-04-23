@@ -84,9 +84,19 @@ class BigDecimal
     }
 
     /**
+     * @param $value
+     * @param null $scale
+     * @return static
+     */
+    public static function create($value, $scale = null)
+    {
+        return new static($value, $scale);
+    }
+
+    /**
      * zero
      *
-     * @return BigDecimal
+     * @return static
      */
     public static function zero()
     {
