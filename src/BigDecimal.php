@@ -106,7 +106,7 @@ class BigDecimal
     /**
      * one
      *
-     * @return BigDecimal
+     * @return static
      */
     public function one()
     {
@@ -128,7 +128,7 @@ class BigDecimal
 
     /**
      * @param $scale
-     * @return BigDecimal
+     * @return static
      */
     public function setScale($scale)
     {
@@ -150,7 +150,7 @@ class BigDecimal
     /**
      * @param BigDecimal $addend
      *
-     * @return BigDecimal
+     * @return static
      */
     public function add(BigDecimal $addend)
     {
@@ -161,7 +161,7 @@ class BigDecimal
     /**
      * @param BigDecimal $subtrahend
      *
-     * @return BigDecimal
+     * @return static
      */
     public function subtract(BigDecimal $subtrahend)
     {
@@ -172,7 +172,7 @@ class BigDecimal
     /**
      * @param BigDecimal $multiplier
      *
-     * @return BigDecimal
+     * @return static
      */
     public function multiply(BigDecimal $multiplier)
     {
@@ -184,7 +184,7 @@ class BigDecimal
     /**
      * @param BigDecimal $divisor
      *
-     * @return BigDecimal
+     * @return static
      * @throws \InvalidArgumentException
      */
     public function divide(BigDecimal $divisor)
@@ -200,7 +200,7 @@ class BigDecimal
     /**
      * @param $n
      *
-     * @return BigDecimal
+     * @return static
      * @throws \InvalidArgumentException
      */
     public function pow($n)
@@ -217,7 +217,7 @@ class BigDecimal
     }
 
     /**
-     * @return BigDecimal
+     * @return int
      */
     public function signum()
     {
@@ -225,7 +225,7 @@ class BigDecimal
     }
 
     /**
-     * @return BigDecimal
+     * @return static
      */
     public function negate()
     {
@@ -243,7 +243,7 @@ class BigDecimal
     }
 
     /**
-     * @return BigDecimal
+     * @return static
      */
     public function abs()
     {
@@ -254,7 +254,7 @@ class BigDecimal
      * @param int $scale
      * @param int $roundMode
      *
-     * @return BigDecimal
+     * @return static
      * @throws \RuntimeException If round mode is UNNECESSARY and digit truncation is required
      */
     public function round($scale = 0, $roundMode = self::ROUND_HALF_UP)
@@ -294,6 +294,13 @@ class BigDecimal
         return $rounded;
     }
 
+    /**
+     * @param $roundMode
+     * @param $sign
+     * @param $value
+     * @param $truncated
+     * @return bool
+     */
     private static function isRoundAdditionRequired($roundMode, $sign, $value, $truncated)
     {
         switch ($roundMode) {
