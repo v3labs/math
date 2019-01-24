@@ -9,12 +9,13 @@
 
 namespace V3labs\Math\BigDecimal\Tests;
 
+use PHPUnit\Framework\TestCase;
 use V3labs\Math\BigDecimal;
 
 /**
  * @author Vladislav Veselinov <vladislav@v3labs.com>
  */
-class BigDecimalComparisonTest extends \PHPUnit_Framework_TestCase
+class BigDecimalComparisonTest extends TestCase
 {
     /**
      * @test comparisonFunctions

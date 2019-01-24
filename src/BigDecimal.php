@@ -19,8 +19,6 @@ namespace V3labs\Math;
  */
 class BigDecimal
 {
-    const MAX_SCALE = 2147483647;
-
     const ROUND_UP          = 1;
     const ROUND_DOWN        = 2;
     const ROUND_CEILING     = 3;
@@ -36,15 +34,8 @@ class BigDecimal
     private $value;
     private $scale;
 
-    public function __construct($value, $scale = null)
+    public function __construct($value, ?int $scale = null)
     {
-        if ($scale !== null) {
-            $scale = (int) $scale;
-            if (abs($scale) > self::MAX_SCALE) {
-                throw new \InvalidArgumentException(sprintf('Scale "%s" is grater than max "%s"', $scale, self::MAX_SCALE));
-            }
-        }
-
         if (!is_scalar($value)) {
             throw new \InvalidArgumentException(sprintf('Value of type "%s" is not as scalar', gettype($value)));
         }
@@ -84,53 +75,82 @@ class BigDecimal
     }
 
     /**
-     * @param $value
-     * @param null $scale
-     * @return static
+     * @deprecated
      */
-    public static function create($value, $scale = null)
+    public static function create($value, ?int $scale = null): self
     {
         return new static($value, $scale);
     }
 
-    /**
-     * zero
-     *
-     * @return static
-     */
-    public static function zero()
+    public static function of($value, ?int $scale = null): self
+    {
+        return new static($value, $scale);
+    }
+
+    public static function ofValues(array $values, $scale = null): array
+    {
+        return array_map(function($value) use ($scale) { return static::create($value, $scale); }, $values);
+    }
+
+    public static function sum(array $values): self
+    {
+        return array_reduce($values, function(self $left, self $right) { return $left->add($right); }, static::zero());
+    }
+
+    public static function avg(array $values, ?int $scale = null): self
+    {
+        if (!count($values)) {
+            return null;
+        }
+
+        $avg = static::sum($values)->divide(BigDecimal::of(count($values), $scale));
+
+        return $scale !== null ? $avg->round($scale) : $avg;
+    }
+
+    public static function min(array $values): ?self
+    {
+        return array_reduce($values, function(?self $left, self $right) {
+            return $left === null
+                ? $right
+                : ($left->isLessThan($right)
+                    ? $left
+                    : $right);
+        }, null);
+    }
+
+    public static function max(array $values): ?self
+    {
+        return array_reduce($values, function(?self $left, self $right) {
+            return $left === null
+                ? $right
+                : ($left->isGreaterThan($right)
+                    ? $left
+                    : $right);
+        }, null);
+    }
+
+    public static function zero(): self
     {
         return new static(0, 0);
     }
 
-    /**
-     * one
-     *
-     * @return static
-     */
-    public function one()
+    public function one(): self
     {
         return new static(1, 0);
     }
 
-    public function value()
+    public function value(): string
     {
         return $this->value;
     }
 
-    /**
-     * @return int
-     */
-    public function scale()
+    public function scale(): int
     {
         return $this->scale;
     }
 
-    /**
-     * @param $scale
-     * @return static
-     */
-    public function setScale($scale)
+    public function setScale(int $scale): self
     {
         return new static($this->value(), $scale);
     }
@@ -147,87 +167,61 @@ class BigDecimal
         return $this->value();
     }
 
-    /**
-     * @param BigDecimal $addend
-     *
-     * @return static
-     */
-    public function add(BigDecimal $addend)
+    public function add(BigDecimal $addend): self
     {
         $scale = max($this->scale(), $addend->scale());
         return new static(bcadd($this->value, $addend->value(), $scale), $scale);
     }
 
-    /**
-     * @param BigDecimal $subtrahend
-     *
-     * @return static
-     */
-    public function subtract(BigDecimal $subtrahend)
+    public function subtract(BigDecimal $subtrahend): self
     {
         $scale = max($this->scale(), $subtrahend->scale());
         return new static(bcsub($this->value, $subtrahend->value(), $scale), $scale);
     }
 
-    /**
-     * @param BigDecimal $multiplier
-     *
-     * @return static
-     */
-    public function multiply(BigDecimal $multiplier)
+    public function multiply(BigDecimal $multiplier): self
     {
-        $scale = min($this->scale + $multiplier->scale(), self::MAX_SCALE);
+        $scale = $this->scale + $multiplier->scale();
 
         return new static(bcmul($this->value, $multiplier->value(), $scale), $scale);
     }
 
-    /**
-     * @param BigDecimal $divisor
-     *
-     * @return static
-     * @throws \InvalidArgumentException
-     */
-    public function divide(BigDecimal $divisor)
+    public function divide(BigDecimal $divisor): self
     {
         if ($divisor->signum() === 0) {
             throw new \InvalidArgumentException('Division by zero');
         }
-        $scale = min($this->scale + $divisor->scale(), self::MAX_SCALE);
+
+        $scale = $this->scale + $divisor->scale();
 
         return new static(bcdiv($this->value, $divisor->value(), $scale), $scale);
     }
 
     /**
-     * @param $n
+     * @param int $exponent
      *
      * @return static
      * @throws \InvalidArgumentException
      */
-    public function pow($n)
+    public function pow(int $exponent): self
     {
-        $n = (int) $n;
-        if ($n < 0) {
-            throw new \InvalidArgumentException(sprintf('Power "%s" is negative', $n));
+        $exponent = (int) $exponent;
+        if ($exponent < 0) {
+            throw new \InvalidArgumentException(sprintf('Power "%s" is negative', $exponent));
         }
-        if ($n === 0) {
+        if ($exponent === 0) {
             return static::one();
         }
 
-        return new static(bcpow($this->value, $n, self::MAX_SCALE));
+        return new static(bcpow($this->value, $exponent, $this->scale * $exponent));
     }
 
-    /**
-     * @return int
-     */
-    public function signum()
+    public function signum(): int
     {
         return $this->compareTo(self::zero());
     }
 
-    /**
-     * @return static
-     */
-    public function negate()
+    public function negate(): self
     {
         $value = $this->value;
         switch ($this->signum()) {
@@ -242,10 +236,7 @@ class BigDecimal
         return new static($value, $this->scale);
     }
 
-    /**
-     * @return static
-     */
-    public function abs()
+    public function abs(): self
     {
         return $this->signum() < 0 ? $this->negate() : new static($this->value, $this->scale);
     }
@@ -257,7 +248,7 @@ class BigDecimal
      * @return static
      * @throws \RuntimeException If round mode is UNNECESSARY and digit truncation is required
      */
-    public function round($scale = 0, $roundMode = self::ROUND_HALF_UP)
+    public function round(int $scale = 0, int $roundMode = self::ROUND_HALF_UP): self
     {
         if ($scale >= $this->scale) {
             return new static($this->value, $scale);
@@ -294,14 +285,7 @@ class BigDecimal
         return $rounded;
     }
 
-    /**
-     * @param $roundMode
-     * @param $sign
-     * @param $value
-     * @param $truncated
-     * @return bool
-     */
-    private static function isRoundAdditionRequired($roundMode, $sign, $value, $truncated)
+    private static function isRoundAdditionRequired($roundMode, $sign, $value, $truncated): bool
     {
         switch ($roundMode) {
             case self::ROUND_UP:
@@ -332,73 +316,43 @@ class BigDecimal
         return false;
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return int
-     */
-    public function compareTo(BigDecimal $number)
+    public function compareTo(BigDecimal $number): int
     {
         $scale = max($this->scale(), $number->scale());
         return bccomp($this->value, $number->value(), $scale);
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return bool
-     */
-    public function isEqualTo(BigDecimal $number)
+    public function isEqualTo(BigDecimal $number): bool
     {
         return $this->compareTo($number) == 0;
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return bool
-     */
-    public function isGreaterThan(BigDecimal $number)
+    public function isGreaterThan(BigDecimal $number): bool
     {
         return $this->compareTo($number) == 1;
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return bool
-     */
-    public function isGreaterThanOrEqualTo(BigDecimal $number)
+    public function isGreaterThanOrEqualTo(BigDecimal $number): bool
     {
         return $this->compareTo($number) >= 0;
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return bool
-     */
-    public function isLessThan(BigDecimal $number)
+    public function isLessThan(BigDecimal $number): bool
     {
         return $this->compareTo($number) == -1;
     }
 
-    /**
-     * @param BigDecimal $number
-     * @return bool
-     */
-    public function isLessThanOrEqualTo(BigDecimal $number)
+    public function isLessThanOrEqualTo(BigDecimal $number): bool
     {
         return $this->compareTo($number) <= 0;
     }
 
-    /**
-     * @return bool
-     */
-    public function isNegative()
+    public function isNegative(): bool
     {
         return $this->isLessThan(static::zero());
     }
 
-    /**
-     * @return bool
-     */
-    public function isPositive()
+    public function isPositive(): bool
     {
         return $this->isGreaterThan(static::zero());
     }

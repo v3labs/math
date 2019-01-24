@@ -10,13 +10,14 @@
 
 namespace V3labs\Math\BigDecimal\Tests;
 
+use PHPUnit\Framework\TestCase;
 use V3labs\Math\BigDecimal;
 
 /**
  * @author Kirill chEbba Chebunin <iam@chebba.org>
  * @author Vladislav Veselinov <vladislav@v3labs.com>
  */
-class BigDecimalTest extends \PHPUnit_Framework_TestCase
+class BigDecimalTest extends TestCase
 {
     /**
      * @test constructWithCorrectFormat
