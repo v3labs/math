@@ -43,14 +43,9 @@ class BigDecimalTest extends TestCase
      */
     public function constructWithWrongFormat($string, $case)
     {
-        try {
-            new BigDecimal($string);
-        } catch (\InvalidArgumentException $e) {
-            // Correct
-            return;
-        }
-
-        $this->fail($case);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($case);
+        new BigDecimal($string);
     }
 
     /**
@@ -62,14 +57,9 @@ class BigDecimalTest extends TestCase
      */
     public function constructNonScalar($value, $case)
     {
-        try {
-            new BigDecimal($value);
-        } catch (\InvalidArgumentException $e) {
-            // Correct
-            return;
-        }
-
-        $this->fail($case);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($case);
+        new BigDecimal($value);
     }
 
     /**
@@ -185,15 +175,12 @@ class BigDecimalTest extends TestCase
      */
     public function powNegative()
     {
-        try {
-            $value1 = new BigDecimal('192341.12345', 5);
-            $result = $value1->pow(-3);
-        } catch (\InvalidArgumentException $e) {
-            // pass
-            return;
-        }
+        $negative = -3;
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(sprintf('Power "%s" is negative', $negative));
 
-        $this->fail('Exception was not raised for negative power');
+        $value1 = new BigDecimal('192341.12345', 5);
+        $value1->pow($negative);
     }
 
     /**
@@ -304,21 +291,21 @@ class BigDecimalTest extends TestCase
     public function wrongFormat()
     {
         return [
-            ['--123.45', 'Double sign'],
-            ['*123.45', 'Wrong sign'],
-            ['1a3.45', 'Wrong char in integer'],
-            ['123.45a', 'Wrong char in fraction'],
-            ['123.', 'Empty fraction'],
-            ['.45', 'Empty integer'],
+            ['--123.45', 'Wrong value "--123.45" format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
+            ['*123.45', 'Wrong value "*123.45" format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
+            ['1a3.45', 'Wrong value "1a3.45" format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
+            ['123.45a', 'Wrong value "123.45a" format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
+            ['123.', 'Wrong value "123." format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
+            ['.45', 'Wrong value ".45" format: expected "/^([-+])?([0-9]+)(\.([0-9]+))?(E([+-]?[0-9]+))?$/"'],
         ];
     }
 
     public function nonScalar()
     {
         return [
-            [new \DateTime(), 'Object'],
-            [array(), 'Array'],
-            [null, 'Null'],
+            [new \DateTime(), 'Value of type "object" is not as scalar'],
+            [[], 'Value of type "array" is not as scalar'],
+            [null, 'Value of type "NULL" is not as scalar'],
         ];
     }
 
