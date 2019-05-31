@@ -22,6 +22,11 @@
       "V3labs\\Math\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "V3labs\\Math\\": "tests/V3labs/Math/BigDecimal/Tests/"
+    }
+  },
   "require": {
     "php": ">=7.1.0",
     "ext-bcmath": "*"
